@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">待办组件</string>
+    <string name="widget_todo_name">每日待办 · 大组件</string>
+    <string name="widget_ddl_name">最近 DDL · 倒计时</string>
+
+    <string name="today_label">今日待办</string>
+    <string name="long_label">长期待办</string>
+    <string name="ddl_label">最近 DDL</string>
+    <string name="quick_add">＋ 快速添加</string>
+    <string name="settings_more">设置 ›</string>
+    <string name="new_task">＋ 新建待办</string>
+    <string name="empty_hint">还没有待办，点下面 ＋ 新建一条</string>
+    <string name="empty_hint_short">暂无待办</string>
+</resources>
