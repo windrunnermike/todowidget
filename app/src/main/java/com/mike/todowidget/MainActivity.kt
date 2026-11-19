@@ -3,6 +3,8 @@ package com.mike.todowidget
 import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.pm.PackageManager
@@ -45,6 +47,35 @@ class MainActivity : Activity() {
         WidgetRenderer.refreshAll(this)
     }
 
+    // ---------------------------------------------------------------- 一键放到桌面
+    private fun pinWidget() {
+        val names = arrayOf("每日待办 · 大组件", "最近 DDL · 倒计时")
+        val classes = arrayOf(TodoWidgetProvider::class.java, DdlWidgetProvider::class.java)
+        AlertDialog.Builder(this)
+            .setTitle("选择要放到桌面的组件")
+            .setItems(names) { _, which ->
+                requestPin(classes[which])
+            }
+            .setNegativeButton("取消", null)
+            .show()
+    }
+
+    private fun requestPin(cls: Class<*>) {
+        val mgr = getSystemService(AppWidgetManager::class.java)
+        if (mgr == null || !mgr.isRequestPinAppWidgetSupported) {
+            Toast.makeText(
+                this,
+                "这台手机不支持一键添加，请长按桌面空白处 → 添加小部件 → 找「待办组件」",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        val ok = mgr.requestPinAppWidget(ComponentName(this, cls), null, null)
+        if (!ok) {
+            Toast.makeText(this, "系统拒绝了请求，请用长按桌面的方式添加", Toast.LENGTH_LONG).show()
+        }
+    }
+
     private fun askNotificationPermission() {
         if (Build.VERSION.SDK_INT >= 33 &&
             checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
@@ -61,13 +92,29 @@ class MainActivity : Activity() {
             setPadding(dp(18), dp(30), dp(18), dp(12))
         }
 
+        val headRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
         val title = TextView(this).apply {
             text = "我的待办"
             textSize = 24f
             setTextColor(getColor(R.color.text_primary))
             typeface = Typeface.DEFAULT_BOLD
         }
-        root.addView(title)
+        headRow.addView(title, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+
+        val pinBtn = TextView(this).apply {
+            text = "放到桌面"
+            textSize = 13f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(getColor(R.color.white))
+            setBackgroundResource(R.drawable.pill)
+            setPadding(dp(14), dp(8), dp(14), dp(8))
+            setOnClickListener { pinWidget() }
+        }
+        headRow.addView(pinBtn)
+        root.addView(headRow)
 
         subTitle = TextView(this).apply {
             textSize = 12f
